@@ -1,14 +1,22 @@
-#define CS 9
-#define CSN 10
-#define PCK_SIZE 4
-
-void init();
+#include <stdio.h>
+#include <stdint.h>
+#include <vector>
+#include "./response.cpp"
+//#include "./nrf24.cpp"
 
 int main(int argc, char *argv[]){
-    return 0;
-}
+    std::vector<Response*> responses;
 
-void init(){
-    
-    return;
+    printf("Hello World!\n");
+
+    uint8_t address[3] = {0x00, 0x00, 0x1A};
+    responses.push_back(new Response(address, 0));
+    responses.push_back(new Response(address, 1));
+    responses.push_back(new Response(address, 2));
+
+    for(Response* response: responses){
+        response->print();
+    }
+
+    return 0;
 }
