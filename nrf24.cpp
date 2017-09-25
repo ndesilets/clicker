@@ -7,8 +7,8 @@ extern "C" {
     #include <wiringPi.h>
 }
 
-#define CE 9
-#define CSN 10
+#define CE 15
+#define CSN 24
 #define CHANNEL 69
 
 #define SPI_CHN 0

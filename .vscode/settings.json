@@ -24,6 +24,8 @@
         "thread": "cpp",
         "tuple": "cpp",
         "utility": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "vector": "cpp",
+        "xstring": "cpp"
     }
 }
