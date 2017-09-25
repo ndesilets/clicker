@@ -26,6 +26,7 @@ uint8_t Response::getValue() {
 }
 
 void Response::print(){
+    // "[0x12, 0x34, 0x56] : 0"
     printf("[");
     for(int i = 0; i < 3; i++){
         (i < 2) ? printf("0x%x, ", address[i]) : printf("0x%x", address[i]);
