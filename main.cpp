@@ -16,6 +16,7 @@
 
 #define CHANNEL 35
 #define PAYLOAD_SIZE 4
+#define OFFSET 97
 #define PORT 8000
 
 std::mutex outputBufferMutex;
@@ -35,7 +36,7 @@ int main(int argc, char *argv[]) {
     initRf24(&radio);
     scanAndEmit(&radio);
 
-    t.join(); // meh
+    //t.join();
 
     return EXIT_SUCCESS;
 }
@@ -70,8 +71,6 @@ void listenThread() {
     int sockFd, nBytes;
     unsigned int clientLen;
     struct sockaddr_in server, client;
-    struct hostent *clientp;
-    char *clientaddrp;
     unsigned char dummyBuffer[sizeof("HEY IT ME LOL")];
 
     initSocket(&sockFd, &server);
@@ -98,7 +97,6 @@ void listenThread() {
                 unsigned char* output = (unsigned char*)outputBuffer.top();
                 
                 sendto(sockFd, output, PAYLOAD_SIZE, 0, (struct sockaddr*)&client, sizeof(client));
-                //sendto(sockFd, output, PAYLOAD_SIZE, 0, clientRes->ai_addr, clientRes->ai_addrlen);
 
                 outputBuffer.pop();
             }
@@ -111,7 +109,7 @@ void listenThread() {
 }
 
 void initRf24(RF24* radio) {
-    printf("Initializing transceiver...\n\n");
+    printf("[RF24 thread]: Initializing transceiver...\n\n");
 
     radio->begin();
 
@@ -135,7 +133,7 @@ void initRf24(RF24* radio) {
 void scanAndEmit(RF24* radio) {
     uint8_t buffer[PAYLOAD_SIZE] = {0, 0, 0, 0};
 
-    printf("Scanning... \n\n");
+    printf("[RF24 thread]: Scanning... \n\n");
     
     while (1) {
         if (radio->available()) {
@@ -143,18 +141,23 @@ void scanAndEmit(RF24* radio) {
 
             radio->read(&buffer, PAYLOAD_SIZE);
 
+            // If answer within 1-9
+            if (buffer[3] >= 98 && buffer[3] <= 106) {
+                buffer[3] -= OFFSET;
+
+                outputBufferMutex.lock();
+                
+                outputBuffer.push(buffer);
+                
+                outputBufferMutex.unlock();
+            }
+
             //payloadDWORD |= (uint32_t)(buffer[0] << 24);
             //payloadDWORD |= (uint32_t)(buffer[1] << 16);
             //payloadDWORD |= (uint32_t)(buffer[2] << 8);
             //payloadDWORD |= (uint32_t)(buffer[3]);
 
             //printf("%x\n", payloadDWORD);
-
-            outputBufferMutex.lock();
-
-            outputBuffer.push(buffer);
-
-            outputBufferMutex.unlock();
         }
     }
 }
